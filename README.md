@@ -1,6 +1,7 @@
 # Sofiia Totska — work atlas
 
-Live: **https://totskaiasonia.github.io/**
+Live: **https://totskaiasonia.github.io/**  
+Source: **https://github.com/totskaiasonia/totskaiasonia.github.io**
 
 Vite + React 19 portfolio for four shipped products: MedSahra, La Boucherie, tags.ly, Family Olive Club.
 
@@ -11,4 +12,4 @@ npm run build
 npm run preview
 ```
 
-GitHub Pages deploys from `main` via `.github/workflows/pages.yml`.
+Static files on the `gh-pages` branch are served by GitHub Pages.
