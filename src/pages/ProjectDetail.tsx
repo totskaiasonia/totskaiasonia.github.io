@@ -39,7 +39,7 @@ export function ProjectDetail() {
       </Link>
 
       <div className="case-hero">
-        <motion.div variants={stagger} initial="hidden" animate="show">
+        <motion.div className="case-hero-copy" variants={stagger} initial="hidden" animate="show">
           <motion.p className="case-kicker" variants={fadeUp}>
             {project.index} · {project.code} · {project.year} · {project.locale}
           </motion.p>

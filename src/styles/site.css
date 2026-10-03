@@ -396,11 +396,19 @@ nav a:hover {
 }
 
 .atlas-stage--live {
-  min-height: 280px;
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
   aspect-ratio: 16 / 10;
   position: relative;
   background: #06181e;
   overflow: hidden;
+}
+
+@media (max-width: 799px) {
+  .atlas-stage--live {
+    min-height: unset;
+  }
 }
 
 .hero-portrait {
@@ -544,6 +552,13 @@ nav a:hover {
   display: grid;
   gap: 1.4rem;
   margin: 1.2rem 0 1.8rem;
+  min-width: 0;
+}
+
+.case-hero-copy,
+.case-hero .atlas-stage--live {
+  min-width: 0;
+  max-width: 100%;
 }
 
 @media (min-width: 960px) {
@@ -559,10 +574,12 @@ nav a:hover {
   letter-spacing: 0.16em;
   color: var(--signal);
   text-transform: uppercase;
+  line-height: 1.45;
 }
 
 .case-hero h1 {
   font-size: clamp(2rem, 11vw, 5.4rem);
+  line-height: 1.02;
   text-transform: uppercase;
   margin: 0.35rem 0;
 }
@@ -570,6 +587,28 @@ nav a:hover {
 .case-sub {
   color: var(--muted);
   max-width: 28rem;
+}
+
+@media (max-width: 799px) {
+  .case-kicker {
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+  }
+
+  .case-hero h1 {
+    font-size: clamp(1.85rem, 10.5vw, 2.75rem);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+  }
+
+  .case-hero {
+    gap: 1.1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .detail .pull {
+    margin-top: 0.35rem;
+  }
 }
 
 .live-chip {
@@ -614,12 +653,21 @@ nav a:hover {
 
 .pull {
   margin: 0 0 1.6rem;
-  padding: 1.1rem 0 1.1rem 1.1rem;
+  padding: 1.1rem 0.75rem 1.1rem 1.1rem;
   border-left: 3px solid var(--signal);
   font-family: var(--font-display);
-  font-size: clamp(1.35rem, 3vw, 2rem);
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.2rem, 4.8vw, 2rem);
+  line-height: 1.38;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 799px) {
+  .pull {
+    font-size: 1.2rem;
+    line-height: 1.45;
+    padding-right: 0.35rem;
+  }
 }
 
 .stack-pills {
