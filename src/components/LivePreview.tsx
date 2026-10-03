@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useFineHover } from '../hooks/useFineHover';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 type Props = {
@@ -9,12 +10,15 @@ type Props = {
 
 export function LivePreview({ poster, reel, alt }: Props) {
   const reduced = usePrefersReducedMotion();
+  const fineHover = useFineHover();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
   const canPlay = Boolean(reel) && !reduced;
 
   const start = () => {
     if (!canPlay) return;
     void videoRef.current?.play();
+    setPlaying(true);
   };
 
   const stop = () => {
@@ -22,15 +26,21 @@ export function LivePreview({ poster, reel, alt }: Props) {
     if (!video) return;
     video.pause();
     video.currentTime = 0;
+    setPlaying(false);
   };
 
   return (
     <div
-      className="live-preview"
-      onPointerEnter={start}
-      onPointerLeave={stop}
-      onFocus={start}
-      onBlur={stop}
+      className={`live-preview${playing ? ' is-playing' : ''}`}
+      onPointerEnter={fineHover ? start : undefined}
+      onPointerLeave={fineHover ? stop : undefined}
+      onFocus={fineHover ? start : undefined}
+      onBlur={fineHover ? stop : undefined}
+      onClick={() => {
+        if (fineHover || !canPlay) return;
+        if (playing) stop();
+        else start();
+      }}
     >
       <img className="live-preview-media" src={poster} alt={alt} />
       {canPlay && (
@@ -47,12 +57,14 @@ export function LivePreview({ poster, reel, alt }: Props) {
           >
             <source src={reel} type="video/webm" />
           </video>
-          <div className="live-preview-veil" aria-hidden="true">
-            <span className="live-preview-pause">
-              <i />
-              <i />
-            </span>
-          </div>
+          {fineHover && (
+            <div className="live-preview-veil" aria-hidden="true">
+              <span className="live-preview-pause">
+                <i />
+                <i />
+              </span>
+            </div>
+          )}
         </>
       )}
     </div>
