@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { contacts, person } from '../data/person';
 import { projects } from '../data/projects';
+import { HireForm } from '../components/HireForm';
 import { PlateCard } from '../components/PlateCard';
 import { HeroPortrait } from '../components/ThemeArt';
 import { fadeUp, stagger } from '../components/motion';
@@ -15,8 +16,9 @@ export function Home() {
   const loop = [...ticker, ...ticker];
 
   useEffect(() => {
-    if (window.location.hash === '#work') {
-      document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' });
+    const id = window.location.hash.replace('#', '');
+    if (id === 'work' || id === 'hire') {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     }
   }, []);
 
@@ -46,7 +48,10 @@ export function Home() {
               </p>
             </motion.div>
             <motion.div className="hero-actions" variants={fadeUp}>
-              <a className="btn" href="#work">
+              <a className="btn" href="#hire">
+                Hire me
+              </a>
+              <a className="btn btn-ghost" href="#work">
                 View work
               </a>
               {contacts.map((c) => (
@@ -79,18 +84,50 @@ export function Home() {
           </div>
         </section>
 
+        <section className="offer" aria-labelledby="offer-heading">
+          <div className="work-head">
+            <h2 id="offer-heading">What I take on</h2>
+            <p>Bilingual storefronts, subscriptions, and the admin that keeps them honest.</p>
+          </div>
+          <div className="offer-grid">
+            <article>
+              <h3>Marketplaces</h3>
+              <p>Catalog, search, locale routing, seller tools — the MedSahra shape.</p>
+            </article>
+            <article>
+              <h3>Subscriptions</h3>
+              <p>Plans, checkout, renewals, delivery rules — the La Boucherie shape.</p>
+            </article>
+            <article>
+              <h3>Growth tools</h3>
+              <p>UTMs, short links, analytics surfaces — the tags.ly shape.</p>
+            </article>
+            <article>
+              <h3>Ops admin</h3>
+              <p>Queues, roles, media, tickets. The part clients feel after launch.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="hire" className="hire" aria-labelledby="hire-heading">
+          <div className="work-head">
+            <h2 id="hire-heading">Start a brief</h2>
+            <p>For ads, use UTM tags. They show up next to the visitor in admin.</p>
+          </div>
+          <HireForm />
+        </section>
+
         <aside className="about-strip">
           <h2>How this index is drawn</h2>
           <div>
             <p>
               Survey marks, hatch, and a rotating compass are the site’s own language — not the
-              brands’. Product screenshots and reels come from the live domains. Built as a static
-              Vite atlas so a CV link stays independent of product repos.
+              brands’. Product screenshots and reels come from the live domains.
             </p>
             <div className="chip-row">
               <span className="chip">Vite · React 19</span>
               <span className="chip">TypeScript</span>
-              <span className="chip">Framer Motion</span>
+              <span className="chip">First-party analytics</span>
               <span className="chip">English</span>
             </div>
           </div>

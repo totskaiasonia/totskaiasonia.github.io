@@ -790,3 +790,269 @@ nav a:hover {
   height: 1px;
   width: 36px;
 }
+
+.offer,
+.hire {
+  padding: 2.4rem 0 0.4rem;
+}
+
+.offer-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+@media (min-width: 800px) {
+  .offer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.offer-grid article {
+  border: 1px solid var(--line);
+  padding: 1rem 1.05rem 1.15rem;
+  background: var(--ink-2);
+}
+
+.offer-grid h3 {
+  font-size: 1.35rem;
+  text-transform: uppercase;
+  margin-bottom: 0.45rem;
+}
+
+.offer-grid p {
+  color: var(--muted);
+}
+
+.hire-form {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.4rem;
+}
+
+@media (min-width: 800px) {
+  .hire-form {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.hire-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hire-span {
+  grid-column: 1 / -1;
+}
+
+.hire-form input,
+.hire-form select,
+.hire-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+  color: var(--paper);
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 0.7rem 0.75rem;
+}
+
+.hire-submit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.hire-ok {
+  color: var(--sea);
+  margin: 0;
+}
+
+.hire-err {
+  color: var(--signal);
+  margin: 0;
+}
+
+.consent {
+  position: fixed;
+  z-index: 50;
+  right: 1rem;
+  bottom: 1rem;
+  left: 1rem;
+  max-width: 32rem;
+  margin-left: auto;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--ink) 92%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.consent p {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.consent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.consent-actions .btn {
+  border: 0;
+  cursor: pointer;
+}
+
+.admin-shell {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 1.4rem auto 3rem;
+  color: var(--paper);
+}
+
+.admin-head,
+.admin-tabs,
+.admin-kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+
+.admin-kpis article {
+  flex: 1;
+  min-width: 140px;
+  border: 1px solid var(--line);
+  padding: 0.85rem;
+  background: var(--ink-2);
+}
+
+.admin-kpis em {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.admin-kpis strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+}
+
+.admin-tabs button {
+  font: inherit;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-tabs button.is-on {
+  color: var(--ink);
+  background: var(--chart);
+  border-color: var(--chart);
+}
+
+.admin-login {
+  max-width: 26rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.admin-login input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+  color: var(--paper);
+  padding: 0.7rem 0.75rem;
+  font: inherit;
+}
+
+.admin-split {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 960px) {
+  .admin-split {
+    grid-template-columns: 1.4fr 0.8fr;
+    align-items: start;
+  }
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-table tbody tr {
+  cursor: pointer;
+}
+
+.admin-table tbody tr.is-on,
+.admin-table tbody tr:hover {
+  background: color-mix(in srgb, var(--chart) 10%, transparent);
+}
+
+.admin-path {
+  list-style: none;
+  padding: 0;
+  margin: 0.6rem 0 0;
+}
+
+.admin-path li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.admin-path span {
+  font-family: var(--font-mono);
+  color: var(--chart);
+  font-size: 0.72rem;
+}
+
+.admin-path em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.82rem;
+}
+
+.admin-leads article {
+  border: 1px solid var(--line);
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.7rem;
+  background: var(--ink-2);
+}
+
+.admin-leads header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.4rem;
+}
