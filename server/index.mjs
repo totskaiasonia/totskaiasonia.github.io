@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const dataFile = path.join(root, 'data', 'visits.json');
+const dataDir = process.env.DATA_DIR || path.join(root, 'data');
+const dataFile = path.join(dataDir, 'visits.json');
 const distDir = path.join(root, 'dist');
 const PORT = Number(process.env.PORT || 8787);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'atlas-dev';

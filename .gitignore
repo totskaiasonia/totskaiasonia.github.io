@@ -13,6 +13,7 @@ dist-ssr
 *.local
 data
 .env
+.railway
 
 # Editor directories and files
 .vscode/*
