@@ -23,8 +23,9 @@ export function VisitorTracker() {
       title: document.title,
       referrer: document.referrer,
       language: navigator.language,
-      ua: navigator.userAgent,
-      utm: readUtm(),
+          ua: navigator.userAgent,
+          utm: readUtm(),
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }).catch(() => {});
     lastBeat.current = Date.now();
   }, [location.pathname, location.hash]);

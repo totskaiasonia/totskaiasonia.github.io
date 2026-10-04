@@ -1056,3 +1056,77 @@ nav a:hover {
   gap: 0.8rem;
   margin-bottom: 0.4rem;
 }
+
+.admin-map-frame {
+  margin: 0 0 1.1rem;
+  border: 1px solid var(--line);
+  background: #06181e;
+  overflow: hidden;
+}
+
+.admin-map-chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--line);
+  background: #0a222a;
+}
+
+.admin-map-chrome span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal);
+}
+
+.admin-map-chrome span:nth-child(2) {
+  background: var(--chart);
+}
+
+.admin-map-chrome span:nth-child(3) {
+  background: var(--sea);
+}
+
+.admin-map-chrome em {
+  margin-left: 0.45rem;
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.admin-map {
+  height: min(48vh, 420px);
+  width: 100%;
+  background: #06181e;
+  filter: saturate(0.7) hue-rotate(8deg) contrast(1.08);
+}
+
+.admin-map .leaflet-control-zoom a {
+  background: var(--ink-2);
+  color: var(--chart);
+  border: 1px solid var(--line);
+}
+
+.admin-map .leaflet-bar {
+  border: 0;
+  box-shadow: none;
+}
+
+.atlas-tip {
+  background: var(--ink);
+  color: var(--chart);
+  border: 1px solid var(--chart);
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.atlas-tip::before {
+  border-top-color: var(--chart);
+}

@@ -102,6 +102,63 @@ function countryFrom(req) {
     .slice(0, 8);
 }
 
+function isPrivateIp(ip) {
+  return (
+    !ip ||
+    ip === '127.0.0.1' ||
+    ip === '::1' ||
+    ip.startsWith('10.') ||
+    ip.startsWith('192.168.') ||
+    ip.startsWith('127.') ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(ip)
+  );
+}
+
+const geoCache = new Map();
+
+async function lookupGeo(ip) {
+  if (geoCache.has(ip)) return geoCache.get(ip);
+  if (isPrivateIp(ip)) {
+    const emptyGeo = { country: '', countryCode: '', city: '', region: '', lat: null, lon: null };
+    geoCache.set(ip, emptyGeo);
+    return emptyGeo;
+  }
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 2500);
+  try {
+    const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { signal: ctrl.signal });
+    const data = await res.json();
+    const geo = data?.success
+      ? {
+          country: String(data.country || '').slice(0, 56),
+          countryCode: String(data.country_code || '').slice(0, 8),
+          city: String(data.city || '').slice(0, 56),
+          region: String(data.region || '').slice(0, 56),
+          lat: Number(data.latitude) || null,
+          lon: Number(data.longitude) || null,
+        }
+      : { country: '', countryCode: '', city: '', region: '', lat: null, lon: null };
+    geoCache.set(ip, geo);
+    return geo;
+  } catch {
+    return { country: '', countryCode: '', city: '', region: '', lat: null, lon: null };
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+async function fillGeo(session, ip) {
+  const geo = await lookupGeo(ip);
+  if (!geo.lat && !geo.country) return;
+  session.country = geo.countryCode || geo.country || session.country;
+  session.countryName = geo.country;
+  session.city = geo.city;
+  session.region = geo.region;
+  session.lat = geo.lat;
+  session.lon = geo.lon;
+  queueWrite();
+}
+
 function bearer(req) {
   const h = req.headers.authorization || '';
   return h.startsWith('Bearer ') ? h.slice(7) : '';
@@ -127,7 +184,13 @@ function publicSession(s) {
     device: s.device,
     browser: s.browser,
     language: s.language,
+    timezone: s.timezone || '',
     country: s.country,
+    countryName: s.countryName || '',
+    city: s.city || '',
+    region: s.region || '',
+    lat: s.lat ?? null,
+    lon: s.lon ?? null,
     pages: s.pages,
     leadIds: db.leads.filter((l) => l.sessionId === s.id).map((l) => l.id),
   };
@@ -232,13 +295,23 @@ const server = http.createServer(async (req, res) => {
             campaign: String(body.utm?.campaign || '').slice(0, 80),
           },
           language: String(body.language || '').slice(0, 32),
+          timezone: String(body.timezone || '').slice(0, 64),
           country: countryFrom(req),
+          countryName: '',
+          city: '',
+          region: '',
+          lat: null,
+          lon: null,
           ipHash: ipHash(clientIp(req)),
           ...parsed,
           pages: [],
         };
         db.sessions.unshift(session);
         if (db.sessions.length > 2000) db.sessions.length = 2000;
+        void fillGeo(session, clientIp(req));
+      } else if (!session.lat && !session.geoTried) {
+        session.geoTried = true;
+        void fillGeo(session, clientIp(req));
       }
       session.lastSeenAt = now;
       const last = session.pages[session.pages.length - 1];

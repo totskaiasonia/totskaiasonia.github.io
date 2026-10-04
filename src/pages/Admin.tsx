@@ -1,6 +1,10 @@
 import type { FormEvent } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { getJson, postJson } from '../lib/api';
+
+const VisitMap = lazy(() =>
+  import('../components/VisitMap').then((m) => ({ default: m.VisitMap })),
+);
 
 type Utm = { source: string; medium: string; campaign: string };
 type PageHit = { path: string; title: string; enteredAt: number; leftAt: number | null; ms: number };
@@ -15,7 +19,13 @@ type Session = {
   device: string;
   browser: string;
   language: string;
+  timezone?: string;
   country: string;
+  countryName?: string;
+  city?: string;
+  region?: string;
+  lat: number | null;
+  lon: number | null;
   pages: PageHit[];
   leadIds: string[];
 };
@@ -185,12 +195,17 @@ export function Admin() {
           ))}
         </div>
       ) : (
-        <div className="admin-split">
+        <>
+          <Suspense fallback={<div className="admin-map-frame"><div className="admin-map" /></div>}>
+            <VisitMap sessions={data.sessions} activeId={openId} onSelect={setOpenId} />
+          </Suspense>
+          <div className="admin-split">
           <table className="admin-table">
             <thead>
               <tr>
                 <th>When</th>
                 <th>Stay</th>
+                <th>Place</th>
                 <th>Device</th>
                 <th>Landing</th>
                 <th>Campaign</th>
@@ -201,9 +216,9 @@ export function Admin() {
                 <tr key={s.id} className={openId === s.id ? 'is-on' : ''} onClick={() => setOpenId(s.id)}>
                   <td>{fmtTime(s.createdAt)}</td>
                   <td>{fmtMs(s.durationMs)}</td>
+                  <td>{[s.city, s.countryName || s.country].filter(Boolean).join(', ') || '—'}</td>
                   <td>
                     {s.device} · {s.browser}
-                    {s.country ? ` · ${s.country}` : ''}
                     {s.leadIds.length ? ' · lead' : ''}
                   </td>
                   <td>{s.landing}</td>
@@ -216,6 +231,11 @@ export function Admin() {
             {open ? (
               <>
                 <h2>Path</h2>
+                <p>
+                  {[open.city, open.region, open.countryName || open.country].filter(Boolean).join(' · ') ||
+                    'Place unknown'}
+                  {open.timezone ? ` · ${open.timezone}` : ''}
+                </p>
                 <p>
                   {open.referrer ? `From ${open.referrer}` : 'Direct / unknown referrer'} · {open.language}
                 </p>
@@ -230,10 +250,11 @@ export function Admin() {
                 </ol>
               </>
             ) : (
-              <p>Select a session to see pages and time.</p>
+              <p>Select a session or a map mark to see pages and time.</p>
             )}
           </aside>
         </div>
+        </>
       )}
     </div>
   );
