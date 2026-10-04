@@ -1122,7 +1122,7 @@ nav a:hover {
   height: min(48vh, 420px);
   width: 100%;
   background: #06181e;
-  filter: saturate(0.7) hue-rotate(8deg) contrast(1.08);
+  filter: saturate(0.55) hue-rotate(18deg) contrast(1.12) brightness(0.92);
 }
 
 .admin-map .leaflet-control-zoom a {

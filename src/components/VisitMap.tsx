@@ -39,10 +39,14 @@ export function VisitMap({ sessions, activeId, onSelect }: Props) {
       attributionControl: false,
       worldCopyJump: true,
     }).setView([22.5, 35], 2);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd',
-      maxZoom: 12,
-    }).addTo(map);
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 12 },
+    ).addTo(map);
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 12, opacity: 0.85 },
+    ).addTo(map);
     L.control.zoom({ position: 'topright' }).addTo(map);
     layerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
@@ -93,7 +97,7 @@ export function VisitMap({ sessions, activeId, onSelect }: Props) {
         <span />
         <span />
         <span />
-        <em>Visitor plate · {geoCount} geocoded</em>
+        <em>Visitor plate · {geoCount} geocoded · Esri canvas</em>
       </div>
       <div ref={rootRef} className="admin-map" />
       {geoCount === 0 ? (
