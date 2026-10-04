@@ -67,7 +67,6 @@ export function HireForm() {
           {status === 'sending' ? 'Sending…' : 'Send brief'}
         </button>
         {status === 'ok' ? <p className="hire-ok">Received. I will reply from my email.</p> : null}
-        {status === 'err' ? <p className="hire-err">{error}</p> : null}
       </div>
     </form>
   );
