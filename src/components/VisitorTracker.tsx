@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { postJson } from '../lib/api';
 import { readConsent } from '../lib/consent';
+import { lookupClientGeo } from '../lib/geo';
 import { getSessionId, readUtm } from '../lib/session';
 
 export function VisitorTracker() {
@@ -14,20 +15,31 @@ export function VisitorTracker() {
 
   useEffect(() => {
     if (location.pathname.startsWith('/admin')) return;
-    if (readConsent() !== 'all') return;
 
-    const sessionId = getSessionId();
-    void postJson('/api/track', {
-      sessionId,
-      path: `${location.pathname}${location.hash}`,
-      title: document.title,
-      referrer: document.referrer,
-      language: navigator.language,
+    const sendTrack = () => {
+      if (readConsent() !== 'all') return;
+      const sessionId = getSessionId();
+      const path = `${location.pathname}${location.hash}`;
+      void (async () => {
+        const geo = await lookupClientGeo();
+        await postJson('/api/track', {
+          sessionId,
+          path,
+          title: document.title,
+          referrer: document.referrer,
+          language: navigator.language,
           ua: navigator.userAgent,
           utm: readUtm(),
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    }).catch(() => {});
-    lastBeat.current = Date.now();
+          ...(geo || {}),
+        });
+      })().catch(() => {});
+      lastBeat.current = Date.now();
+    };
+
+    sendTrack();
+    window.addEventListener('st-consent', sendTrack);
+    return () => window.removeEventListener('st-consent', sendTrack);
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
@@ -46,19 +58,13 @@ export function VisitorTracker() {
       }).catch(() => {});
     };
 
-    const onConsent = () => {
-      if (readConsent() === 'all') beat();
-    };
-
     const id = window.setInterval(beat, 8000);
     document.addEventListener('visibilitychange', beat);
     window.addEventListener('pagehide', beat);
-    window.addEventListener('st-consent', onConsent);
     return () => {
       window.clearInterval(id);
       document.removeEventListener('visibilitychange', beat);
       window.removeEventListener('pagehide', beat);
-      window.removeEventListener('st-consent', onConsent);
     };
   }, [location.pathname, location.hash]);
 

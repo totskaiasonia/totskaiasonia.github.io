@@ -71,10 +71,34 @@ function readBody(req) {
   });
 }
 
+function cleanIp(value) {
+  return String(value || '')
+    .replace('::ffff:', '')
+    .trim();
+}
+
+function headerIps(req) {
+  const bags = [
+    req.headers['cf-connecting-ip'],
+    req.headers['true-client-ip'],
+    req.headers['x-real-ip'],
+    req.headers['x-forwarded-for'],
+    req.socket.remoteAddress,
+  ];
+  const out = [];
+  for (const bag of bags) {
+    const parts = String(bag || '')
+      .split(',')
+      .map(cleanIp)
+      .filter(Boolean);
+    out.push(...parts);
+  }
+  return out;
+}
+
 function clientIp(req) {
-  const fwd = req.headers['x-forwarded-for'];
-  const raw = typeof fwd === 'string' ? fwd.split(',')[0].trim() : req.socket.remoteAddress || '';
-  return raw.replace('::ffff:', '');
+  const ips = headerIps(req);
+  return ips.find((ip) => !isPrivateIp(ip)) || ips[0] || '';
 }
 
 function ipHash(ip) {
@@ -107,9 +131,13 @@ function isPrivateIp(ip) {
     !ip ||
     ip === '127.0.0.1' ||
     ip === '::1' ||
+    ip === 'unknown' ||
     ip.startsWith('10.') ||
     ip.startsWith('192.168.') ||
     ip.startsWith('127.') ||
+    ip.startsWith('fc') ||
+    ip.startsWith('fd') ||
+    ip.startsWith('fe80:') ||
     /^172\.(1[6-9]|2\d|3[0-1])\./.test(ip)
   );
 }
@@ -128,14 +156,16 @@ async function lookupGeo(ip) {
   try {
     const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { signal: ctrl.signal });
     const data = await res.json();
+    const lat = Number(data.latitude);
+    const lon = Number(data.longitude);
     const geo = data?.success
       ? {
           country: String(data.country || '').slice(0, 56),
           countryCode: String(data.country_code || '').slice(0, 8),
           city: String(data.city || '').slice(0, 56),
           region: String(data.region || '').slice(0, 56),
-          lat: Number(data.latitude) || null,
-          lon: Number(data.longitude) || null,
+          lat: Number.isFinite(lat) ? lat : null,
+          lon: Number.isFinite(lon) ? lon : null,
         }
       : { country: '', countryCode: '', city: '', region: '', lat: null, lon: null };
     geoCache.set(ip, geo);
@@ -147,16 +177,54 @@ async function lookupGeo(ip) {
   }
 }
 
-async function fillGeo(session, ip) {
+function finiteCoord(value, min, max) {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= min && n <= max ? n : null;
+}
+
+function applyGeo(session, geo) {
+  if (!geo) return false;
+  const lat = finiteCoord(geo.lat, -90, 90);
+  const lon = finiteCoord(geo.lon, -180, 180);
+  const country = String(geo.countryCode || geo.country || geo.countryName || '').slice(0, 56);
+  if (lat == null || lon == null) {
+    if (!country && !geo.city) return false;
+    if (country) session.country = String(geo.countryCode || country).slice(0, 8);
+    if (geo.country || geo.countryName) session.countryName = String(geo.country || geo.countryName).slice(0, 56);
+    if (geo.city) session.city = String(geo.city).slice(0, 56);
+    if (geo.region) session.region = String(geo.region).slice(0, 56);
+    return true;
+  }
+  session.country = String(geo.countryCode || session.country || '').slice(0, 8) || session.country;
+  if (geo.country || geo.countryName) session.countryName = String(geo.country || geo.countryName).slice(0, 56);
+  if (geo.city) session.city = String(geo.city).slice(0, 56);
+  if (geo.region) session.region = String(geo.region).slice(0, 56);
+  session.lat = lat;
+  session.lon = lon;
+  return true;
+}
+
+function geoFromBody(body) {
+  const lat = finiteCoord(body?.lat, -90, 90);
+  const lon = finiteCoord(body?.lon, -180, 180);
+  if (lat == null || lon == null) return null;
+  return {
+    city: String(body.city || '').slice(0, 56),
+    region: String(body.region || '').slice(0, 56),
+    country: String(body.countryName || '').slice(0, 56),
+    countryCode: String(body.country || '').slice(0, 8),
+    lat,
+    lon,
+  };
+}
+
+async function fillGeo(session, ip, body) {
+  if (applyGeo(session, geoFromBody(body))) {
+    queueWrite();
+    return;
+  }
   const geo = await lookupGeo(ip);
-  if (!geo.lat && !geo.country) return;
-  session.country = geo.countryCode || geo.country || session.country;
-  session.countryName = geo.country;
-  session.city = geo.city;
-  session.region = geo.region;
-  session.lat = geo.lat;
-  session.lon = geo.lon;
-  queueWrite();
+  if (applyGeo(session, geo)) queueWrite();
 }
 
 function bearer(req) {
@@ -308,10 +376,9 @@ const server = http.createServer(async (req, res) => {
         };
         db.sessions.unshift(session);
         if (db.sessions.length > 2000) db.sessions.length = 2000;
-        void fillGeo(session, clientIp(req));
-      } else if (!session.lat && !session.geoTried) {
-        session.geoTried = true;
-        void fillGeo(session, clientIp(req));
+        await fillGeo(session, clientIp(req), body);
+      } else if (session.lat == null || session.lon == null) {
+        await fillGeo(session, clientIp(req), body);
       }
       session.lastSeenAt = now;
       const last = session.pages[session.pages.length - 1];
@@ -335,6 +402,9 @@ const server = http.createServer(async (req, res) => {
       if (!session) {
         json(res, 204, {});
         return;
+      }
+      if (session.lat == null || session.lon == null) {
+        void fillGeo(session, clientIp(req));
       }
       const now = Date.now();
       const delta = Math.min(30_000, Math.max(0, Number(body.deltaMs) || 0));

@@ -15,8 +15,9 @@ export function Privacy() {
           <h3>What is stored</h3>
           <p>
             If you allow analytics: a random session id, pages opened, time the tab stayed visible,
-            device/browser, language, referrer, and UTM tags from ads. IP is hashed, not shown as a
-            raw address. If you send a brief: name, email, company, budget, and message.
+            device/browser, language, referrer, UTM tags from ads, and an approximate city from IP
+            (not GPS). IP is hashed, not shown as a raw address. If you send a brief: name, email,
+            company, budget, and message.
           </p>
         </article>
         <article>

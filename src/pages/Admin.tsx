@@ -85,8 +85,12 @@ export function Admin() {
       localStorage.removeItem(TOKEN_KEY);
       setToken('');
     });
+    const id = window.setInterval(() => {
+      load(token).catch(() => {});
+    }, 15000);
+    return () => window.clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [token]);
 
   async function login(e: FormEvent) {
     e.preventDefault();
@@ -235,6 +239,9 @@ export function Admin() {
                   {[open.city, open.region, open.countryName || open.country].filter(Boolean).join(' · ') ||
                     'Place unknown'}
                   {open.timezone ? ` · ${open.timezone}` : ''}
+                  {open.lat != null && open.lon != null
+                    ? ` · ${open.lat.toFixed(2)}, ${open.lon.toFixed(2)}`
+                    : ''}
                 </p>
                 <p>
                   {open.referrer ? `From ${open.referrer}` : 'Direct / unknown referrer'} · {open.language}

@@ -1058,13 +1058,33 @@ nav a:hover {
 }
 
 .admin-map-frame {
+  position: relative;
   margin: 0 0 1.1rem;
   border: 1px solid var(--line);
   background: #06181e;
   overflow: hidden;
 }
 
+.admin-map-frame::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 2.1rem 0 0;
+  z-index: 450;
+  background:
+    repeating-linear-gradient(
+      -18deg,
+      transparent,
+      transparent 11px,
+      rgba(244, 226, 122, 0.05) 11px,
+      rgba(244, 226, 122, 0.05) 12px
+    ),
+    radial-gradient(700px 280px at 90% 0%, rgba(46, 196, 182, 0.12), transparent 55%);
+}
+
 .admin-map-chrome {
+  position: relative;
+  z-index: 500;
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -1114,6 +1134,23 @@ nav a:hover {
 .admin-map .leaflet-bar {
   border: 0;
   box-shadow: none;
+}
+
+.admin-map-empty {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 500;
+  margin: 0;
+  max-width: 28rem;
+  padding: 0.45rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--chart);
+  background: rgba(8, 38, 46, 0.88);
+  border: 1px solid var(--chart);
 }
 
 .atlas-tip {

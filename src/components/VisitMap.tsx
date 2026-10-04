@@ -96,6 +96,9 @@ export function VisitMap({ sessions, activeId, onSelect }: Props) {
         <em>Visitor plate · {geoCount} geocoded</em>
       </div>
       <div ref={rootRef} className="admin-map" />
+      {geoCount === 0 ? (
+        <p className="admin-map-empty">No geocoded visits yet — allow analytics on the public site first.</p>
+      ) : null}
     </figure>
   );
 }
